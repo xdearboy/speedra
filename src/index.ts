@@ -31,11 +31,24 @@ function ask(question: string): Promise<string> {
 
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
-  const autoStartMode: AutoStartMode | null = args.includes('--nearest-asn')
-    ? 'nearest-asn'
-    : args.includes('--nearest')
-      ? 'nearest'
-      : null;
+
+  // --nearest-asn can be used as a flag (uses user's own ASN)
+  // or with a value: --nearest-asn as207567
+  let autoStartMode: AutoStartMode | null = null;
+  let targetAsn: string | null = null;
+
+  const nearestAsnIdx = args.indexOf('--nearest-asn');
+  if (nearestAsnIdx !== -1) {
+    autoStartMode = 'nearest-asn';
+    const maybeAsn = args[nearestAsnIdx + 1];
+    if (maybeAsn && !maybeAsn.startsWith('--')) {
+      targetAsn = maybeAsn.toUpperCase().startsWith('AS')
+        ? maybeAsn.toUpperCase()
+        : `AS${maybeAsn.toUpperCase()}`;
+    }
+  } else if (args.includes('--nearest')) {
+    autoStartMode = 'nearest';
+  }
 
   if (args.includes('--version') || args.includes('-v')) {
     process.stdout.write(`speedra v${getPackageVersion()}\n`);
@@ -76,7 +89,7 @@ async function main(): Promise<void> {
     }
   }
 
-  const app = new Application({ autoStartMode });
+  const app = new Application({ autoStartMode, targetAsn });
 
   try {
     await app.initialize();

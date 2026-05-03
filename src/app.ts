@@ -18,11 +18,13 @@ interface Cancellable {
 interface ApplicationOptions {
   servers?: ServerConfig[];
   autoStartMode?: AutoStartMode | null;
+  targetAsn?: string | null;
 }
 
 export class Application {
   private readonly servers: ServerConfig[];
   private readonly autoStartMode: AutoStartMode | null;
+  private readonly targetAsn: string | null;
   private _inkInstance: InkInstance | null = null;
   private _activeProcesses: Set<Cancellable> = new Set();
   private _shuttingDown: boolean = false;
@@ -32,6 +34,7 @@ export class Application {
   constructor(options: ApplicationOptions = {}) {
     this.servers = options.servers ?? DEFAULT_SERVERS;
     this.autoStartMode = options.autoStartMode ?? null;
+    this.targetAsn = options.targetAsn ?? null;
     this._onSIGINT = () => {
       void this._handleSignal('SIGINT');
     };
@@ -46,7 +49,7 @@ export class Application {
   }
 
   async run(): Promise<void> {
-    this._inkInstance = render(createElement(App, { autoStartMode: this.autoStartMode })) as InkInstance;
+    this._inkInstance = render(createElement(App, { autoStartMode: this.autoStartMode, targetAsn: this.targetAsn })) as InkInstance;
     await this._inkInstance.waitUntilExit();
     await this.shutdown();
   }
@@ -58,20 +61,20 @@ export class Application {
     for (const proc of this._activeProcesses) {
       try {
         proc.cancel();
-      } catch {}
+      } catch { }
     }
     this._activeProcesses.clear();
 
     if (this._inkInstance) {
       try {
         this._inkInstance.unmount();
-      } catch {}
+      } catch { }
       this._inkInstance = null;
     }
 
     try {
       exitAlternateScreen();
-    } catch {}
+    } catch { }
 
     process.off('SIGINT', this._onSIGINT);
     process.off('SIGTERM', this._onSIGTERM);

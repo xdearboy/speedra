@@ -124,7 +124,8 @@ speedra           # launch TUI
 speedra --version # print version
 speedra -v        # same
 speedra --nearest # auto-start nearest server test
-speedra --nearest-asn # auto-start nearest server in your ASN (fallback to nearest)
+speedra --nearest-asn          # auto-start nearest server in your own ASN (fallback to nearest)
+speedra --nearest-asn as207567 # auto-start nearest server matching a specific ASN
 ```
 
 ### Workflow
