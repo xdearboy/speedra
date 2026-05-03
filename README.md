@@ -62,16 +62,15 @@ npx speedra
 
 ### Standalone binary (no Node.js required)
 
-Download the binary for your platform from [GitHub Releases](https://github.com/xdearboy/speedra/releases):
+Download the binary from [GitHub Releases](https://github.com/xdearboy/speedra/releases):
 
 | Platform            | File                  |
 | ------------------- | --------------------- |
 | Linux x64           | `speedra-linux-x64`   |
-| macOS Apple Silicon | `speedra-macos-arm64` |
-| macOS Intel         | `speedra-macos-x64`   |
-| Windows x64         | `speedra-win-x64.exe` |
 
-Make it executable (Linux/macOS):
+Note: right now CI builds only Linux x64 binary due current GitHub runner/workflow limitations.
+
+Make it executable (Linux):
 
 ```bash
 chmod +x speedra-linux-x64
@@ -158,12 +157,7 @@ speedra -v        # same
 | Warsaw              | 95.85.254.73   | 5201 | Poland      |
 | Frankfurt (play2go) | 94.156.114.3   | 5201 | Germany     |
 | Amsterdam (play2go) | 144.31.30.177  | 5201 | Netherlands |
-| Paris               | 89.84.1.222    | 5201 | France      |
 | Zurich              | 185.102.218.1  | 5201 | Switzerland |
-| London              | 185.59.221.1   | 5201 | UK          |
-| Madrid              | 185.59.222.1   | 5201 | Spain       |
-| Warsaw (M247)       | 185.59.220.1   | 5201 | Poland      |
-| Stockholm           | 185.59.219.1   | 5201 | Sweden      |
 
 All tests use 8 parallel TCP streams (`-P 8`) for accurate throughput measurement.
 
