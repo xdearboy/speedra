@@ -1,12 +1,18 @@
-import { Box, Text } from 'ink';
+ï»¿import { Box, Text } from 'ink';
 import { createRequire } from 'node:module';
 import type React from 'react';
+
+declare const APP_BUILD_VERSION: string | undefined;
 
 interface PackageJson {
   version?: string;
 }
 
 function getAppVersion(): string {
+  if (typeof APP_BUILD_VERSION === 'string' && APP_BUILD_VERSION.length > 0) {
+    return APP_BUILD_VERSION;
+  }
+
   const require = createRequire(import.meta.url);
   try {
     const pkg = require('../../package.json') as PackageJson;
@@ -85,7 +91,7 @@ export function TitleBar(): React.JSX.Element {
       ))}
       <Box marginTop={1}>
         <Text color="#6c7086"> v{APP_VERSION} </Text>
-        <Text color="#585b70">— </Text>
+        <Text color="#585b70">- </Text>
         <Text color="#a6adc8">{APP_TAGLINE}</Text>
       </Box>
     </Box>
