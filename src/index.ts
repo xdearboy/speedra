@@ -1,8 +1,9 @@
-﻿import { createRequire } from 'node:module';
+import { createRequire } from 'node:module';
 import { createInterface } from 'node:readline';
 import { Application } from './app.js';
 import { autoInstallIperf3 } from './services/network/installer.js';
 import { validateIperf3 } from './services/network/validator.js';
+import type { AutoStartMode } from './types.js';
 
 interface PackageJson {
   version?: string;
@@ -30,6 +31,11 @@ function ask(question: string): Promise<string> {
 
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
+  const autoStartMode: AutoStartMode | null = args.includes('--nearest-asn')
+    ? 'nearest-asn'
+    : args.includes('--nearest')
+      ? 'nearest'
+      : null;
 
   if (args.includes('--version') || args.includes('-v')) {
     process.stdout.write(`speedra v${getPackageVersion()}\n`);
@@ -39,7 +45,7 @@ async function main(): Promise<void> {
   let validation = await validateIperf3();
 
   if (!validation.available) {
-    process.stdout.write('\n  ✗  iperf3 is not installed or not found in PATH.\n\n');
+    process.stdout.write('\n  ?  iperf3 is not installed or not found in PATH.\n\n');
 
     const answer = await ask('  Install iperf3 automatically? [Y/n] ');
 
@@ -51,10 +57,10 @@ async function main(): Promise<void> {
       });
 
       if (result.success) {
-        process.stdout.write('\n  ✓  iperf3 installed successfully.\n\n');
+        process.stdout.write('\n  ?  iperf3 installed successfully.\n\n');
         validation = await validateIperf3();
       } else {
-        process.stdout.write(`\n  ✗  Installation failed: ${result.error ?? 'unknown error'}\n`);
+        process.stdout.write(`\n  ?  Installation failed: ${result.error ?? 'unknown error'}\n`);
         process.stdout.write('  Please install iperf3 manually and try again.\n\n');
         process.exit(1);
       }
@@ -64,13 +70,13 @@ async function main(): Promise<void> {
     }
 
     if (!validation.available) {
-      process.stdout.write('  ✗  iperf3 still not found after installation.\n');
+      process.stdout.write('  ?  iperf3 still not found after installation.\n');
       process.stdout.write('  Try restarting your terminal and running speedra again.\n\n');
       process.exit(1);
     }
   }
 
-  const app = new Application();
+  const app = new Application({ autoStartMode });
 
   try {
     await app.initialize();
@@ -79,7 +85,7 @@ async function main(): Promise<void> {
   } catch (err) {
     await app.shutdown().catch(() => undefined);
     const message = err instanceof Error ? err.message : String(err);
-    process.stderr.write(`\n  ✗  Fatal error: ${message}\n\n`);
+    process.stderr.write(`\n  ?  Fatal error: ${message}\n\n`);
     process.exit(1);
   }
 }

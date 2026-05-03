@@ -1,8 +1,9 @@
-﻿import { render } from 'ink';
+import { render } from 'ink';
 import { createElement } from 'react';
 import { App } from './components/App.js';
 import type { ServerConfig } from './config/servers.js';
 import { DEFAULT_SERVERS } from './config/servers.js';
+import type { AutoStartMode } from './types.js';
 import { exitAlternateScreen } from './utils/terminal.js';
 
 interface InkInstance {
@@ -16,10 +17,12 @@ interface Cancellable {
 
 interface ApplicationOptions {
   servers?: ServerConfig[];
+  autoStartMode?: AutoStartMode | null;
 }
 
 export class Application {
   private readonly servers: ServerConfig[];
+  private readonly autoStartMode: AutoStartMode | null;
   private _inkInstance: InkInstance | null = null;
   private _activeProcesses: Set<Cancellable> = new Set();
   private _shuttingDown: boolean = false;
@@ -28,6 +31,7 @@ export class Application {
 
   constructor(options: ApplicationOptions = {}) {
     this.servers = options.servers ?? DEFAULT_SERVERS;
+    this.autoStartMode = options.autoStartMode ?? null;
     this._onSIGINT = () => {
       void this._handleSignal('SIGINT');
     };
@@ -42,7 +46,7 @@ export class Application {
   }
 
   async run(): Promise<void> {
-    this._inkInstance = render(createElement(App)) as InkInstance;
+    this._inkInstance = render(createElement(App, { autoStartMode: this.autoStartMode })) as InkInstance;
     await this._inkInstance.waitUntilExit();
     await this.shutdown();
   }

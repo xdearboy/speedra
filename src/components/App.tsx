@@ -1,10 +1,10 @@
-﻿import { Box, Text, useApp, useInput, useStdout } from 'ink';
+import { Box, Text, useApp, useInput, useStdout } from 'ink';
 import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { DEFAULT_SERVERS } from '../config/servers.js';
 import { useGeolocation } from '../hooks/useGeolocation.js';
 import { useTestRunner } from '../hooks/useTestRunner.js';
-import type { AppView, EnrichedServer } from '../types.js';
+import type { AppView, AutoStartMode, EnrichedServer } from '../types.js';
 import { ErrorDisplay } from './ErrorDisplay.js';
 import { KeyboardShortcuts } from './KeyboardShortcuts.js';
 import { ProgressView } from './ProgressView.js';
@@ -21,6 +21,10 @@ interface AppState {
   view: AppView;
   error: string | null;
   status: string;
+}
+
+interface AppProps {
+  autoStartMode?: AutoStartMode | null;
 }
 
 function buildInitialState(): AppState {
@@ -40,7 +44,7 @@ function buildInitialState(): AppState {
   };
 }
 
-export function App(): React.JSX.Element {
+export function App({ autoStartMode = null }: AppProps): React.JSX.Element {
   const { exit } = useApp();
   const { stdout } = useStdout();
 
@@ -55,7 +59,7 @@ export function App(): React.JSX.Element {
   } = useTestRunner();
 
   const stableServers = useRef(DEFAULT_SERVERS).current;
-  const { userLocation, enrichedServers, loading: geoLoading } = useGeolocation(stableServers);
+  const { userLocation, userASN, enrichedServers, loading: geoLoading } = useGeolocation(stableServers);
 
   useEffect(() => {
     if (!geoLoading && enrichedServers.length > 0) {
@@ -113,7 +117,7 @@ export function App(): React.JSX.Element {
         ...s,
         view: 'testing',
         error: null,
-        status: `Testing ${s.selectedServers.size} server(s)…`,
+        status: `Testing ${s.selectedServers.size} server(s)...`,
       };
     });
 
@@ -152,23 +156,64 @@ export function App(): React.JSX.Element {
     }));
   }, [cancelTestRunner, geoLoading, enrichedServers, userLocation]);
 
+  const startSingleServerTest = useCallback(
+    (server: EnrichedServer, statusLabel: string): void => {
+      if (running) return;
+
+      setState(s => ({
+        ...s,
+        selectedServers: new Set([server.ip]),
+        view: 'testing',
+        error: null,
+        status: statusLabel,
+      }));
+
+      void runTests([server]).then(() => {
+        setState(s => ({ ...s, view: 'results', status: 'Tests complete' }));
+      });
+    },
+    [running, runTests]
+  );
+
   const selectNearestAndStart = useCallback((): void => {
     if (running) return;
     const nearest = state.servers.find(srv => srv.isNearest) ?? state.servers[0];
     if (!nearest) return;
+    startSingleServerTest(nearest, `Testing nearest server ${nearest.ip}...`);
+  }, [running, state.servers, startSingleServerTest]);
 
-    setState(s => ({
-      ...s,
-      selectedServers: new Set([nearest.ip]),
-      view: 'testing',
-      error: null,
-      status: `Testing nearest server ${nearest.ip}…`,
-    }));
+  const autoStartedRef = useRef(false);
+  useEffect(() => {
+    if (autoStartedRef.current) return;
+    if (!autoStartMode || geoLoading || running) return;
+    if (!state.servers.length) return;
 
-    void runTests([nearest]).then(() => {
-      setState(s => ({ ...s, view: 'results', status: 'Tests complete' }));
-    });
-  }, [running, state.servers, runTests]);
+    if (autoStartMode === 'nearest') {
+      const nearest = state.servers.find(srv => srv.isNearest) ?? state.servers[0];
+      if (!nearest) return;
+      autoStartedRef.current = true;
+      startSingleServerTest(nearest, `Auto mode: nearest (${nearest.ip})`);
+      return;
+    }
+
+    const nearest = state.servers.find(srv => srv.isNearest) ?? state.servers[0];
+    const matchedByAsn =
+      userASN?.number && userASN.number !== 'AS?'
+        ? state.servers.find(srv => srv.asn.number === userASN.number)
+        : undefined;
+    const target = matchedByAsn ?? nearest;
+    if (!target) return;
+
+    autoStartedRef.current = true;
+    if (matchedByAsn) {
+      startSingleServerTest(
+        target,
+        `Auto mode: nearest in your ASN ${userASN?.number ?? ''} (${target.ip})`
+      );
+    } else {
+      startSingleServerTest(target, `Auto mode: ASN match not found, fallback nearest (${target.ip})`);
+    }
+  }, [autoStartMode, geoLoading, running, startSingleServerTest, state.servers, userASN]);
 
   useInput((input, key) => {
     if (input === 'q') {
@@ -245,7 +290,7 @@ export function App(): React.JSX.Element {
       {view === 'testing' && currentTest && <ProgressView test={currentTest} />}
       {view === 'testing' && !currentTest && (
         <Box marginY={1}>
-          <Text color="cyan">Preparing tests…</Text>
+          <Text color="cyan">Preparing tests...</Text>
         </Box>
       )}
 

@@ -1,10 +1,15 @@
-﻿export interface Location {
+export interface Location {
   latitude: number;
   longitude: number;
   city: string;
   country: string;
 
   countryCode: string;
+}
+
+export interface ASNInfo {
+  number: string;
+  organization: string;
 }
 
 interface IpApiResponse {
@@ -97,6 +102,36 @@ export async function getUserLocation(): Promise<Location | null> {
       country: data.country ?? '',
       countryCode: data.countryCode ?? '',
     };
+  } catch {
+    return null;
+  }
+}
+
+export async function getUserASN(): Promise<ASNInfo | null> {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+    const response = await fetch('http://ip-api.com/json/?fields=status,as,org,isp', {
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) return null;
+
+    const data = (await response.json()) as IpApiResponse;
+    if (data.status !== 'success') return null;
+
+    const asField = data.as ?? '';
+    const match = asField.match(/^(AS\d+)\s+(.+)$/);
+    if (match?.[1] && match?.[2]) {
+      return { number: match[1], organization: match[2] };
+    }
+
+    const organization = data.org ?? data.isp ?? '';
+    if (!organization) return null;
+    return { number: 'AS?', organization };
   } catch {
     return null;
   }

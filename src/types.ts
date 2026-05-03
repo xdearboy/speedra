@@ -4,6 +4,7 @@ export type { ServerConfig } from './config/servers.js';
 export type { Location } from './services/geolocation/ip-lookup.js';
 
 export type AppView = 'selection' | 'testing' | 'results';
+export type AutoStartMode = 'nearest' | 'nearest-asn';
 
 export type KeyboardAction =
   | 'up'

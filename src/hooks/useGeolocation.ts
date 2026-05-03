@@ -1,8 +1,8 @@
 ﻿import { useEffect, useRef, useState } from 'react';
 import type { ServerConfig } from '../config/servers.js';
 import { haversineDistance } from '../services/geolocation/distance.js';
-import type { Location } from '../services/geolocation/ip-lookup.js';
-import { getUserLocation } from '../services/geolocation/ip-lookup.js';
+import type { ASNInfo, Location } from '../services/geolocation/ip-lookup.js';
+import { getUserASN, getUserLocation } from '../services/geolocation/ip-lookup.js';
 import { pingAll } from '../services/geolocation/ping.js';
 import type { EnrichedServer } from '../types.js';
 
@@ -78,6 +78,7 @@ export function computeDistances(
 
 interface GeolocationState {
   userLocation: Location | null;
+  userASN: ASNInfo | null;
   enrichedServers: EnrichedServer[];
   loading: boolean;
 }
@@ -85,6 +86,7 @@ interface GeolocationState {
 export function useGeolocation(servers: ReadonlyArray<ServerConfig>): GeolocationState {
   const [data, setData] = useState<GeolocationState>({
     userLocation: null,
+    userASN: null,
     enrichedServers: servers as EnrichedServer[],
     loading: true,
   });
@@ -97,15 +99,16 @@ export function useGeolocation(servers: ReadonlyArray<ServerConfig>): Geolocatio
     async function load(): Promise<void> {
       const svrs = serversRef.current;
 
-      const [userLocation, pingMap] = await Promise.all([
+      const [userLocation, userASN, pingMap] = await Promise.all([
         getUserLocation(),
+        getUserASN(),
         pingAll(svrs as ServerConfig[]),
       ]);
 
       if (cancelled) return;
 
       const enrichedServers = computeDistances(svrs, userLocation, pingMap);
-      setData({ userLocation, enrichedServers, loading: false });
+      setData({ userLocation, userASN, enrichedServers, loading: false });
     }
 
     void load();

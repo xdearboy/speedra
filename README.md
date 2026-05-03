@@ -116,6 +116,8 @@ winget install ESnet.iperf3
 speedra           # launch TUI
 speedra --version # print version
 speedra -v        # same
+speedra --nearest # auto-start nearest server test
+speedra --nearest-asn # auto-start nearest server in your ASN (fallback to nearest)
 ```
 
 ### Workflow
