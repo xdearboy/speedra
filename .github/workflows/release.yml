@@ -12,7 +12,7 @@ permissions:
 jobs:
   release:
     name: Test, Build, Publish & Release
-    runs-on: speedra-runners
+    runs-on: [ self-hosted, Linux, X64, kubernetes, speedra ]
 
     steps:
       - name: Checkout repository
