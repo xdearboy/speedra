@@ -48,8 +48,11 @@ jobs:
           bun-version: latest
 
       - name: Build Linux binary
-        run: bun build src/index.ts --compile --target=bun-linux-x64 --define APP_BUILD_VERSION='"${GITHUB_REF_NAME#v}"'
-          --outfile=speedra-linux-x64
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          bun build src/index.ts --compile --target=bun-linux-x64 \
+            --define "APP_BUILD_VERSION='\"${VERSION}\"'" \
+            --outfile=speedra-linux-x64
 
       - name: Publish to npm (with provenance via OIDC)
         env:
