@@ -43,6 +43,13 @@ Available Servers
 bash <(curl -fsSL https://raw.githubusercontent.com/xdearboy/speedra/main/scripts/run-linux.sh)
 ```
 
+To pass flags, use this form instead:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/xdearboy/speedra/main/scripts/run-linux.sh | bash -s -- --nearest
+curl -fsSL https://raw.githubusercontent.com/xdearboy/speedra/main/scripts/run-linux.sh | bash -s -- --nearest-asn
+```
+
 ### Linux x64 (install one command)
 
 ```bash
@@ -64,9 +71,9 @@ npx speedra
 
 Download the binary from [GitHub Releases](https://github.com/xdearboy/speedra/releases):
 
-| Platform            | File                  |
-| ------------------- | --------------------- |
-| Linux x64           | `speedra-linux-x64`   |
+| Platform  | File                |
+| --------- | ------------------- |
+| Linux x64 | `speedra-linux-x64` |
 
 Note: right now CI builds only Linux x64 binary due current GitHub runner/workflow limitations.
 

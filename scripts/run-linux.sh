@@ -18,4 +18,4 @@ fi
 
 curl -fsSL "$BINARY_URL" -o "$TMP_BIN"
 chmod +x "$TMP_BIN"
-exec "$TMP_BIN"
+exec "$TMP_BIN" "$@"
