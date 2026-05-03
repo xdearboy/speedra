@@ -137,8 +137,20 @@ export function App(): React.JSX.Element {
 
   const resetResults = useCallback((): void => {
     cancelTestRunner();
-    setState(buildInitialState());
-  }, [cancelTestRunner]);
+    setState(prev => ({
+      ...prev,
+      servers:
+        !geoLoading && enrichedServers.length > 0
+          ? enrichedServers
+          : buildInitialState().servers,
+      selectedServers: new Set<string>(),
+      userLocation: !geoLoading ? userLocation : null,
+      focusedIndex: 0,
+      view: 'selection',
+      error: null,
+      status: 'Ready',
+    }));
+  }, [cancelTestRunner, geoLoading, enrichedServers, userLocation]);
 
   const selectNearestAndStart = useCallback((): void => {
     if (running) return;
