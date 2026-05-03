@@ -52,6 +52,8 @@ jobs:
           --outfile=speedra-linux-x64
 
       - name: Publish to npm (with provenance via OIDC)
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --provenance --access public
 
       - name: Generate changelog
