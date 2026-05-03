@@ -188,7 +188,6 @@ export function App({ autoStartMode = null, targetAsn = null }: AppProps): React
     if (autoStartedRef.current) return;
     if (!autoStartMode || geoLoading || running) return;
     if (!state.servers.length) return;
-    // Wait until servers are enriched (at least some have been pinged)
     const stillAllChecking = state.servers.every(s => s.status === 'checking');
     if (stillAllChecking) return;
 
@@ -201,7 +200,6 @@ export function App({ autoStartMode = null, targetAsn = null }: AppProps): React
     }
 
     const nearest = state.servers.find(srv => srv.isNearest) ?? state.servers[0];
-    // Use explicitly provided ASN, or fall back to user's own ASN
     const asnToMatch = targetAsn ?? (userASN?.number !== 'AS?' ? userASN?.number : null);
     const matchedByAsn = asnToMatch
       ? state.servers.find(srv => srv.asn.number === asnToMatch && srv.status !== 'offline')
@@ -213,10 +211,10 @@ export function App({ autoStartMode = null, targetAsn = null }: AppProps): React
     if (matchedByAsn) {
       startSingleServerTest(
         target,
-        `Auto mode: nearest in ASN ${asnToMatch ?? ''} (${target.ip})`
+        `Auto mode: nearest in ${asnToMatch} (${target.ip})`
       );
     } else {
-      startSingleServerTest(target, `Auto mode: ASN ${asnToMatch ?? 'unknown'} not found, fallback nearest (${target.ip})`);
+      startSingleServerTest(target, `Auto mode: ${asnToMatch} not found, fallback nearest (${target.ip})`);
     }
   }, [autoStartMode, geoLoading, running, startSingleServerTest, state.servers, targetAsn, userASN]);
 

@@ -143,7 +143,6 @@ export const DEFAULT_SERVERS: ServerConfig[] = [
     isNearest: false,
   },
 
-  // Public iperf3 servers
   {
     id: 'clouvider-fra',
     ip: '91.199.118.184',
@@ -225,7 +224,6 @@ export const DEFAULT_SERVERS: ServerConfig[] = [
     isNearest: false,
   },
 
-  // Russia — MTS
   {
     id: 'mts-moscow',
     ip: '212.188.4.173',
@@ -275,7 +273,6 @@ export const DEFAULT_SERVERS: ServerConfig[] = [
     isNearest: false,
   },
 
-  // Russia — Hostkey
   {
     id: 'hostkey-moscow',
     ip: '31.192.104.200',
@@ -293,7 +290,6 @@ export const DEFAULT_SERVERS: ServerConfig[] = [
     isNearest: false,
   },
 
-  // Russia — Ertelecom (each city has its own AS)
   {
     id: 'ertelecom-spb',
     ip: '109.195.80.230',

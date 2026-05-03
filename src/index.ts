@@ -29,10 +29,8 @@ function ask(question: string): Promise<string> {
   });
 }
 
-// Accepts: "207567", "AS207567", "AS207567 Intezio Worldwide Limited"
-// Always returns "AS207567" or null if no number found
 function normalizeAsn(input: string): string | null {
-  const match = input.match(/\b(\d+)\b/);
+  const match = input.match(/(\d+)/);
   if (!match) return null;
   return `AS${match[1]}`;
 }
@@ -40,15 +38,12 @@ function normalizeAsn(input: string): string | null {
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
 
-  // --nearest-asn can be used as a flag (uses user's own ASN)
-  // or with a value: --nearest-asn as207567
   let autoStartMode: AutoStartMode | null = null;
   let targetAsn: string | null = null;
 
   const nearestAsnIdx = args.indexOf('--nearest-asn');
   if (nearestAsnIdx !== -1) {
     autoStartMode = 'nearest-asn';
-    // Collect all tokens after --nearest-asn until the next flag
     const asnTokens: string[] = [];
     for (let i = nearestAsnIdx + 1; i < args.length; i++) {
       if (args[i]?.startsWith('--')) break;
