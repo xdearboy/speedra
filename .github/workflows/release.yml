@@ -51,14 +51,7 @@ jobs:
         run: bun build src/index.ts --compile --target=bun-linux-x64 --external react-devtools-core
           --outfile=speedra-linux-x64
 
-      - name: Verify npm auth
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npm whoami
-
       - name: Publish to npm (with provenance via OIDC)
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --provenance --access public
 
       - name: Generate changelog
