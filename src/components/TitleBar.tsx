@@ -1,7 +1,23 @@
-﻿import { Box, Text } from 'ink';
+import { Box, Text } from 'ink';
+import { createRequire } from 'node:module';
 import type React from 'react';
 
-const APP_VERSION = '1.0.0';
+interface PackageJson {
+  version?: string;
+}
+
+function getAppVersion(): string {
+  const require = createRequire(import.meta.url);
+  try {
+    const pkg = require('../../package.json') as PackageJson;
+    return pkg.version ?? 'unknown';
+  } catch {
+    return 'unknown';
+  }
+}
+
+const APP_VERSION = getAppVersion();
+const APP_TAGLINE = 'latency & throughput radar';
 
 const ASCII_RAW = `
                          _           
@@ -69,8 +85,8 @@ export function TitleBar(): React.JSX.Element {
       ))}
       <Box marginTop={1}>
         <Text color="#6c7086"> v{APP_VERSION} </Text>
-        <Text color="#585b70">— </Text>
-        <Text color="#a6adc8">network speed test</Text>
+        <Text color="#585b70">� </Text>
+        <Text color="#a6adc8">{APP_TAGLINE}</Text>
       </Box>
     </Box>
   );
