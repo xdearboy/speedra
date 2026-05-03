@@ -37,6 +37,17 @@ Available Servers
 
 ## Installation
 
+### Linux x64 (run now, no install)
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/xdearboy/speedra/main/scripts/run-linux.sh)
+```
+
+### Linux x64 (install one command)
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/xdearboy/speedra/main/scripts/install.sh)
+```
 ### Via npm (requires Node.js ≥ 18)
 
 ```bash
@@ -185,3 +196,5 @@ reset
 ## License
 
 [MIT](LICENSE)
+
+
