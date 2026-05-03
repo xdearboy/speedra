@@ -1,205 +1,186 @@
 # speedra
 
 [![npm version](https://img.shields.io/npm/v/speedra.svg)](https://www.npmjs.com/package/speedra)
-[![CI](https://github.com/your-org/speedra/actions/workflows/test.yml/badge.svg)](https://github.com/your-org/speedra/actions/workflows/test.yml)
-[![Coverage](https://img.shields.io/badge/coverage-80%25-brightgreen.svg)](https://github.com/your-org/speedra/actions)
+[![CI](https://github.com/xdearboy/speedra/actions/workflows/release.yml/badge.svg)](https://github.com/xdearboy/speedra/actions/workflows/release.yml)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A beautiful, modern TUI-based CLI tool for hosting speed testing using iperf3. Test your server's network performance against multiple predefined endpoints with real-time progress, geolocation-aware server ranking, and stunning terminal visuals.
-
-## Screenshot
-
-<!-- TODO: Add animated GIF demo here -->
-> *Animated demo coming soon — showing server selection, real-time progress bars, and results table.*
+A beautiful, modern TUI-based CLI tool for network speed testing using iperf3. Test your connection against multiple servers with real-time progress, geolocation-aware server ranking, and Catppuccin Mocha visuals.
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                        speedra                              │
-├─────────────────────────────────────────────────────────────┤
-│ 📍 Amsterdam, NL                          Detecting servers │
-├─────────────────────────────────────────────────────────────┤
-│  [✓] ⭐ 🇩🇪 213.165.53.248:5201  ●●●  312 km  AS12345 Hetzner │
-│  [ ]    🇳🇱 138.124.100.47:5201  ●●●  450 km  AS24940 Hetzner │
-│  [ ]    🇩🇪 138.124.105.21:5201  ●●○  890 km  AS24940 Hetzner │
-│  [ ]    🇫🇷  95.85.254.73:5201   ●○○  2100 km AS16276 OVH    │
-├─────────────────────────────────────────────────────────────┤
-│ ↑↓ Navigate · Space Select · Enter Start · n Nearest · q Quit│
-└─────────────────────────────────────────────────────────────┘
+                         _
+                        | |
+ ___ _ __   ___  ___  __| |_ __ __ _
+/ __| '_ \ / _ \/ _ \/ _` | '__/ _` |
+\__ \ |_) |  __/  __/ (_| | | | (_| |
+|___/ .__/ \___|\___|\__,_|_|  \__,_|
+    | |
+    |_|
+
+ v1.0.0  — network speed test
+
+📍 Amsterdam, NL
+
+Available Servers
+────────────────────────────────────────────────
+◉ ⭐ 🇩🇪 Frankfurt · Frankfurt am Main, Germany
+    213.165.53.248:5201  ●●●  312 km  42 ms  AS207567 Intezio
+○    🇪🇪 Tallinn · Tallinn, Estonia
+    138.124.100.47:5201  ●●●  450 km  61 ms  AS207567 Intezio
+○    🇳🇱 Netherlands · Eygelshoven, Netherlands
+    138.124.105.21:5201  ●●○  890 km  38 ms  AS207567 Intezio
+○    🇵🇱 Warsaw · Warsaw, Poland
+    95.85.254.73:5201    ●●●  520 km  55 ms  AS207567 Intezio
+
+↑↓ Navigate · Space Select · Enter Start · n Nearest · Esc Cancel · r Reset · q Quit
 ```
 
 ## Installation
+
+### Via npm (requires Node.js ≥ 18)
 
 ```bash
 npm install -g speedra
 ```
 
-Then run it from anywhere:
+Or run without installing:
 
 ```bash
-speedra
+npx speedra
 ```
 
-## Prerequisites
+### Standalone binary (no Node.js required)
 
-speedra requires **iperf3** to be installed on your system.
+Download the binary for your platform from [GitHub Releases](https://github.com/xdearboy/speedra/releases):
 
-### macOS
+| Platform            | File                  |
+| ------------------- | --------------------- |
+| Linux x64           | `speedra-linux-x64`   |
+| macOS Apple Silicon | `speedra-macos-arm64` |
+| macOS Intel         | `speedra-macos-x64`   |
+| Windows x64         | `speedra-win-x64.exe` |
+
+Make it executable (Linux/macOS):
 
 ```bash
+chmod +x speedra-linux-x64
+./speedra-linux-x64
+```
+
+## iperf3
+
+speedra requires **iperf3**. If it's not installed, speedra will offer to install it automatically on first run:
+
+```
+  ✗  iperf3 is not installed or not found in PATH.
+
+  Install iperf3 automatically? [Y/n]
+```
+
+Press Enter and speedra will detect your package manager and install iperf3 for you.
+
+Supported package managers: `brew`, `port`, `apt-get`, `dnf`, `yum`, `pacman`, `apk`, `zypper`, `winget`, `choco`, `scoop`.
+
+To install manually:
+
+```bash
+# macOS
 brew install iperf3
-```
 
-### Ubuntu / Debian
-
-```bash
+# Ubuntu / Debian
 sudo apt-get install iperf3
-```
 
-### Fedora / RHEL / CentOS
-
-```bash
+# Fedora / RHEL
 sudo dnf install iperf3
-```
 
-### Arch Linux
-
-```bash
+# Arch Linux
 sudo pacman -S iperf3
-```
 
-### Windows
-
-Download the iperf3 binary from the [official iperf3 website](https://iperf.fr/iperf-download.php) and add it to your `PATH`.
-
-Alternatively, using [Chocolatey](https://chocolatey.org):
-
-```bash
-choco install iperf3
-```
-
-Or using [Scoop](https://scoop.sh):
-
-```bash
-scoop install iperf3
-```
-
-### Verify installation
-
-```bash
-iperf3 --version
+# Windows (winget)
+winget install ESnet.iperf3
 ```
 
 ## Usage
 
-Launch the TUI:
-
 ```bash
-speedra
-```
-
-Check the installed version:
-
-```bash
-speedra --version
-# or
-speedra -v
+speedra           # launch TUI
+speedra --version # print version
+speedra -v        # same
 ```
 
 ### Workflow
 
-1. **Launch** — speedra starts and automatically detects your location, then ranks the four test servers by distance.
-2. **Select servers** — use the keyboard to navigate and pick which servers to test.
-3. **Run tests** — press Enter (or `n` to instantly test the nearest server).
-4. **View results** — a results table shows download bandwidth, latency, and status for each server.
+1. **Launch** — speedra detects your location and ranks servers by distance + latency
+2. **Select** — navigate with `↑↓`, toggle with `Space`
+3. **Test** — press `Enter` or `n` to instantly test the nearest server
+4. **Results** — color-coded download/upload speeds, latency, ASN info
 
-### Keyboard Shortcuts
+### Keyboard shortcuts
 
-| Key       | Action                                           |
-| --------- | ------------------------------------------------ |
-| `↑` / `↓` | Navigate the server list                         |
-| `Space`   | Toggle server selection                          |
-| `Enter`   | Start tests for selected servers                 |
-| `n`       | Select nearest server and start test immediately |
-| `Esc`     | Cancel running test                              |
-| `r`       | Reset results and return to selection            |
-| `q`       | Quit the application                             |
+| Key       | Action                                      |
+| --------- | ------------------------------------------- |
+| `↑` / `↓` | Navigate server list                        |
+| `Space`   | Toggle server selection                     |
+| `Enter`   | Start tests for selected servers            |
+| `n`       | Select nearest server and start immediately |
+| `Esc`     | Cancel running test                         |
+| `r`       | Reset results                               |
+| `q`       | Quit                                        |
 
 ## Features
 
-- **Automatic nearest server detection** — geolocation ranks servers by distance so you test the most relevant one first.
-- **Real-time progress** — animated progress bar, live bandwidth readings, elapsed time, and sparkline charts while tests run.
-- **Beautiful results table** — color-coded bandwidth values (green ≥100 Mbits/s, yellow ≥10, red <10), country flags, ASN info, and latency.
-- **Distance indicators** — ●●● (< 500 km), ●●○ (500–2000 km), ●○○ (> 2000 km) with matching colors.
-- **Graceful error handling** — failed tests are marked clearly; remaining servers continue testing.
-- **Clean exit** — restores terminal state and kills any running iperf3 processes on exit.
+- **Auto-install iperf3** — detects your package manager and installs on first run
+- **Server availability check** — offline servers are marked `✗ offline` and cannot be selected
+- **Geolocation ranking** — servers sorted by combined distance + ping score
+- **Real-time progress** — animated bar, live bandwidth, sparkline trend
+- **Color-coded results** — green ≥100 Mbits/s, yellow ≥10, red <10
+- **Distance indicators** — ●●● < 500 km, ●●○ 500–2000 km, ●○○ > 2000 km
+- **Standalone binaries** — no Node.js required, download and run
 
-## Test Servers
+## Test servers
 
-| IP             | Port | Region |
-| -------------- | ---- | ------ |
-| 213.165.53.248 | 5201 | EU     |
-| 138.124.100.47 | 5201 | EU     |
-| 138.124.105.21 | 5201 | EU     |
-| 95.85.254.73   | 5201 | EU     |
+| Name                | IP             | Port | Location    |
+| ------------------- | -------------- | ---- | ----------- |
+| Frankfurt           | 213.165.53.248 | 5201 | Germany     |
+| Tallinn             | 138.124.100.47 | 5201 | Estonia     |
+| Netherlands         | 138.124.105.21 | 5201 | Netherlands |
+| Warsaw              | 95.85.254.73   | 5201 | Poland      |
+| Frankfurt (play2go) | 94.156.114.3   | 5201 | Germany     |
+| Amsterdam (play2go) | 144.31.30.177  | 5201 | Netherlands |
+| Paris               | 89.84.1.222    | 5201 | France      |
+| Zurich              | 185.102.218.1  | 5201 | Switzerland |
+| London              | 185.59.221.1   | 5201 | UK          |
+| Madrid              | 185.59.222.1   | 5201 | Spain       |
+| Warsaw (M247)       | 185.59.220.1   | 5201 | Poland      |
+| Stockholm           | 185.59.219.1   | 5201 | Sweden      |
 
 All tests use 8 parallel TCP streams (`-P 8`) for accurate throughput measurement.
 
 ## Requirements
 
-- **Node.js** 18 or later
-- **iperf3** installed and available in `PATH`
-- A terminal with at least 80×24 characters
+- **Node.js** 18+ (npm install) or no requirements (standalone binary)
+- **iperf3** — auto-installed on first run if missing
+- Terminal: 80×24 minimum
 
 ## Troubleshooting
 
-### `speedra: command not found`
-
-The global npm bin directory is not in your `PATH`. Find it with:
+**`speedra: command not found`** after global install:
 
 ```bash
-npm bin -g
-```
-
-Then add that directory to your shell's `PATH` (e.g. in `~/.bashrc` or `~/.zshrc`):
-
-```bash
+npm bin -g   # find the bin directory
+# add it to PATH in ~/.bashrc or ~/.zshrc
 export PATH="$(npm bin -g):$PATH"
 ```
 
-### `iperf3 not found` error on startup
+**Connection refused / test fails:**
+- Check firewall allows outbound TCP on port 5201
+- Verify server is reachable: `iperf3 -c 213.165.53.248 -p 5201`
 
-speedra requires iperf3 to be installed. See the [Prerequisites](#prerequisites) section above for platform-specific install commands.
-
-### Connection refused / test fails
-
-- Confirm the server is reachable: `iperf3 -c 213.165.53.248 -p 5201`
-- Check that your firewall allows outbound TCP on port 5201.
-- Some networks block iperf3 traffic — try a different network or VPN.
-
-### Results look unexpectedly low
-
-- Close other bandwidth-heavy applications before testing.
-- Run tests one server at a time to isolate the bottleneck.
-- Try the nearest server first (`n` key) for the most representative result.
-
-### Terminal looks garbled after exit
-
-If speedra crashes without cleaning up, run:
+**Terminal looks garbled after crash:**
 
 ```bash
 reset
 ```
-
-to restore your terminal to a normal state.
-
-### Tests time out
-
-iperf3 tests run for ~10 seconds each. If a test consistently times out, the server may be temporarily unavailable. Try again later or select a different server.
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, code style requirements, and the PR process.
 
 ## License
 

@@ -10,9 +10,9 @@ permissions:
   id-token: write
 
 jobs:
-  publish-npm:
-    name: Test, Build & Publish to npm
-    runs-on: ubuntu-latest
+  release:
+    name: Test, Build, Publish & Release
+    runs-on: speedra-runners
 
     steps:
       - name: Checkout repository
@@ -42,73 +42,17 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Publish to npm (with provenance via OIDC)
-        run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-  build-binaries:
-    name: Build binary (${{ matrix.target }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        include:
-          - os: ubuntu-latest
-            target: linux-x64
-            binary: speedra-linux-x64
-            bun_target: bun-linux-x64
-          - os: macos-latest
-            target: macos-arm64
-            binary: speedra-macos-arm64
-            bun_target: bun-darwin-arm64
-          - os: macos-latest
-            target: macos-x64
-            binary: speedra-macos-x64
-            bun_target: bun-darwin-x64
-          - os: windows-latest
-            target: win-x64
-            binary: speedra-win-x64.exe
-            bun_target: bun-windows-x64
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
       - name: Set up Bun
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
 
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
+      - name: Build Linux binary
+        run: bun build src/index.ts --compile --target=bun-linux-x64
+          --outfile=speedra-linux-x64
 
-      - name: Build standalone binary
-        run: bun build src/index.ts --compile --target=${{ matrix.bun_target }}
-          --outfile=${{ matrix.binary }}
-
-      - name: Upload binary artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.binary }}
-          path: ${{ matrix.binary }}
-          retention-days: 1
-
-  create-release:
-    name: Create GitHub Release
-    runs-on: ubuntu-latest
-    needs: [ publish-npm, build-binaries ]
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Download all binary artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: binaries/
-          merge-multiple: true
+      - name: Publish to npm (with provenance via OIDC)
+        run: npm publish --provenance --access public
 
       - name: Generate changelog
         run: |
@@ -130,20 +74,18 @@ jobs:
             echo "**Via npm (requires Node.js ≥ 18):**"
             echo '```bash'
             echo "npm install -g speedra"
-            echo "# or run without installing:"
+            echo "# or:"
             echo "npx speedra"
             echo '```'
             echo ""
-            echo "**Standalone binary (no Node.js required):**"
+            echo "**Standalone binary (Linux x64, no Node.js required):**"
             echo ""
-            echo "Download the binary for your platform from the assets below and run it directly."
+            echo "Download \`speedra-linux-x64\` from the assets below."
             echo ""
-            echo "| Platform | File |"
-            echo "| --- | --- |"
-            echo "| Linux x64 | \`speedra-linux-x64\` |"
-            echo "| macOS Apple Silicon | \`speedra-macos-arm64\` |"
-            echo "| macOS Intel | \`speedra-macos-x64\` |"
-            echo "| Windows x64 | \`speedra-win-x64.exe\` |"
+            echo '```bash'
+            echo "chmod +x speedra-linux-x64"
+            echo "./speedra-linux-x64"
+            echo '```'
             echo ""
             echo "**Full Changelog**: https://github.com/${{ github.repository }}/compare/${PREV_TAG}...${GITHUB_REF_NAME}"
           } > RELEASE_NOTES.md
@@ -156,4 +98,4 @@ jobs:
           body_path: RELEASE_NOTES.md
           draft: false
           prerelease: ${{ contains(github.ref_name, '-') }}
-          files: binaries/*
+          files: speedra-linux-x64
