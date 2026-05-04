@@ -22,7 +22,8 @@ chmod +x "$TMP_BIN"
 # When piped (curl | bash), stdin is the pipe — not a terminal.
 # Ink requires raw mode on stdin, so we redirect from /dev/tty.
 if [ -t 0 ]; then
-  exec "$TMP_BIN" "$@"
+  "$TMP_BIN" "$@"
 else
-  exec "$TMP_BIN" "$@" </dev/tty
+  "$TMP_BIN" "$@" </dev/tty
 fi
+clear
