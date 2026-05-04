@@ -4,7 +4,7 @@ import { App } from './components/App.js';
 import type { ServerConfig } from './config/servers.js';
 import { DEFAULT_SERVERS } from './config/servers.js';
 import type { AutoStartMode } from './types.js';
-import { exitAlternateScreen } from './utils/terminal.js';
+import { enterAlternateScreen, exitAlternateScreen } from './utils/terminal.js';
 
 interface InkInstance {
   unmount: () => void;
@@ -49,6 +49,7 @@ export class Application {
   }
 
   async run(): Promise<void> {
+    enterAlternateScreen();
     this._inkInstance = render(createElement(App, { autoStartMode: this.autoStartMode, targetAsn: this.targetAsn })) as InkInstance;
     await this._inkInstance.waitUntilExit();
     await this.shutdown();
