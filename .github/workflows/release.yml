@@ -54,6 +54,11 @@ jobs:
             --define "APP_BUILD_VERSION=\"${VERSION}\"" \
             --outfile=speedra-linux-x64
 
+      - name: Compress binary with UPX
+        run: |
+          apt-get install -y upx-ucl 2>/dev/null || true
+          upx --best --lzma speedra-linux-x64 || true
+
       - name: Publish to npm (with provenance via OIDC)
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
