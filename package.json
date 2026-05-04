@@ -1,6 +1,6 @@
 {
   "name": "speedra",
-  "version": "1.0.19",
+  "version": "1.0.20",
   "description": "A beautiful, modern CLI tool for network performance testing using iperf3 with a stunning TUI interface",
   "type": "module",
   "repository": {
