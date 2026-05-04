@@ -256,7 +256,7 @@ export function App({ autoStartMode = null, targetAsn = null }: AppProps): React
       if (running) {
         cancelTests();
       } else if (state.view === 'results') {
-        setState(s => ({ ...s, view: 'selection', status: 'Ready' }));
+        setState(s => ({ ...s, view: 'selection', selectedServers: new Set(), status: 'Ready' }));
       }
       return;
     }
