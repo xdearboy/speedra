@@ -102,6 +102,16 @@ export function ProgressView({ test }: Props): React.JSX.Element {
   const displayProgress =
     progress > 0 ? progress : Math.min(99, Math.round((timerElapsed / TEST_DURATION) * 100));
 
+  // Estimate remaining based on progress rate, not hardcoded duration
+  const effectiveElapsed = displayElapsed > 0 ? displayElapsed : 1;
+  const estimatedTotal =
+    displayProgress > 0 && displayProgress < 100
+      ? (effectiveElapsed / displayProgress) * 100
+      : TEST_DURATION;
+  const remaining = Math.max(0, estimatedTotal - effectiveElapsed);
+  const remainingLabel =
+    displayProgress >= 100 ? 'Done' : formatDuration(remaining);
+
   const isDownload = direction === 'download';
   const dirLabel = isDownload ? '↓ Download' : '↑ Upload';
   const dirColor = isDownload ? CAT.blue : CAT.mauve;
@@ -158,9 +168,7 @@ export function ProgressView({ test }: Props): React.JSX.Element {
         </Box>
         <Box flexDirection="row" gap={1}>
           <Text color={CAT.overlay2}>Remaining</Text>
-          <Text color={CAT.subtext0}>
-            {formatDuration(Math.max(0, TEST_DURATION - displayElapsed))}
-          </Text>
+          <Text color={CAT.subtext0}>{remainingLabel}</Text>
         </Box>
       </Box>
 
