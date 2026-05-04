@@ -56,8 +56,19 @@ jobs:
 
       - name: Compress binary with UPX
         run: |
-          apt-get install -y upx-ucl 2>/dev/null || true
-          upx --best --lzma --strip-relocs=0 speedra-linux-x64 || true
+          # Download UPX directly if not available
+          if ! command -v upx &>/dev/null; then
+            UPX_VERSION="4.2.4"
+            curl -fsSL "https://github.com/upx/upx/releases/download/v${UPX_VERSION}/upx-${UPX_VERSION}-amd64_linux.tar.xz" \
+              | tar -xJ --strip-components=1 -C /tmp "upx-${UPX_VERSION}-amd64_linux/upx"
+            UPX_BIN="/tmp/upx"
+          else
+            UPX_BIN="upx"
+          fi
+          BEFORE=$(stat -c%s speedra-linux-x64)
+          $UPX_BIN --best --lzma speedra-linux-x64 && \
+            echo "UPX: $(( BEFORE / 1024 / 1024 ))MB → $(( $(stat -c%s speedra-linux-x64) / 1024 / 1024 ))MB" || \
+            echo "UPX compression failed or not supported, keeping original binary"
 
       - name: Publish to npm (with provenance via OIDC)
         env:
