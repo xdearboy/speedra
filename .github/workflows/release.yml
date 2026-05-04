@@ -50,14 +50,14 @@ jobs:
       - name: Build Linux binary
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
-          bun build src/index.ts --compile --target=bun-linux-x64 \
+          bun build src/index.ts --compile --minify --target=bun-linux-x64 \
             --define "APP_BUILD_VERSION=\"${VERSION}\"" \
             --outfile=speedra-linux-x64
 
       - name: Compress binary with UPX
         run: |
           apt-get install -y upx-ucl 2>/dev/null || true
-          upx --best --lzma speedra-linux-x64 || true
+          upx --best --lzma --strip-relocs=0 speedra-linux-x64 || true
 
       - name: Publish to npm (with provenance via OIDC)
         env:
