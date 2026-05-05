@@ -159,15 +159,49 @@ speedra --nearest-asn as207567 # auto-start nearest server matching a specific A
 
 ## Test servers
 
-| Name                | IP             | Port | Location    |
-| ------------------- | -------------- | ---- | ----------- |
-| Frankfurt           | 213.165.53.248 | 5201 | Germany     |
-| Tallinn             | 138.124.100.47 | 5201 | Estonia     |
-| Netherlands         | 138.124.105.21 | 5201 | Netherlands |
-| Warsaw              | 95.85.254.73   | 5201 | Poland      |
-| Frankfurt (play2go) | 94.156.114.3   | 5201 | Germany     |
-| Amsterdam (play2go) | 144.31.30.177  | 5201 | Netherlands |
-| Zurich              | 185.102.218.1  | 5201 | Switzerland |
+27 servers across Europe, Russia, and the US — sorted by distance + latency automatically.
+
+### Europe
+
+| Name                    | IP             | Port | Location    | ASN                 |
+| ----------------------- | -------------- | ---- | ----------- | ------------------- |
+| Frankfurt               | 213.165.53.248 | 5201 | Germany     | AS207567 Intezio    |
+| Tallinn                 | 138.124.100.47 | 5201 | Estonia     | AS207567 Intezio    |
+| Netherlands             | 138.124.105.21 | 5201 | Netherlands | AS207567 Intezio    |
+| Warsaw                  | 95.85.254.73   | 5201 | Poland      | AS207567 Intezio    |
+| Frankfurt (play2go)     | 94.156.114.3   | 5201 | Germany     | AS215439 PLAY2GO    |
+| Kerkrade (play2go)      | 144.31.30.177  | 5201 | Netherlands | AS215439 PLAY2GO    |
+| Amsterdam (Datacamp)    | 185.102.218.1  | 5201 | Netherlands | AS60068 Datacamp    |
+| Frankfurt (Clouvider)   | 91.199.118.184 | 5200 | Germany     | AS62240 Clouvider   |
+| Rotterdam (Worldstream) | 185.182.195.76 | 5201 | Netherlands | AS49981 WorldStream |
+| Dronten (Serverius)     | 5.178.66.18    | 5002 | Netherlands | AS50673 Serverius   |
+| Paris (Scaleway)        | 51.158.1.21    | 5201 | France      | AS12876 Scaleway    |
+
+### United States
+
+| Name                          | IP             | Port | Location   | ASN                       |
+| ----------------------------- | -------------- | ---- | ---------- | ------------------------- |
+| San Jose (Hurricane Electric) | 216.218.207.42 | 5201 | California | AS6939 Hurricane Electric |
+
+### Russia
+
+| Name                         | IP              | Port | Location         | ASN                |
+| ---------------------------- | --------------- | ---- | ---------------- | ------------------ |
+| Moscow (MTS)                 | 212.188.4.173   | 3333 | Moscow           | AS8359 MTS         |
+| Krasnodar (MTS)              | 212.188.4.231   | 3333 | Krasnodar        | AS8359 MTS         |
+| Yakutsk (MTS)                | 212.188.4.239   | 3333 | Yakutsk          | AS8359 MTS         |
+| Moscow (Hostkey)             | 31.192.104.200  | 5201 | Moscow           | AS50867 Hostkey    |
+| Saint Petersburg (Ertelecom) | 109.195.80.230  | 5201 | Saint Petersburg | AS51570 ER-Telecom |
+| Yekaterinburg (Ertelecom)    | 109.195.96.230  | 5201 | Yekaterinburg    | AS51604 ER-Telecom |
+| Novosibirsk (Ertelecom)      | 109.194.80.230  | 5201 | Novosibirsk      | AS43478 ER-Telecom |
+| Kazan (Ertelecom)            | 109.194.176.230 | 5201 | Kazan            | AS41668 ER-Telecom |
+| Rostov-on-Don (Ertelecom)    | 109.195.224.230 | 5201 | Rostov-on-Don    | AS57378 ER-Telecom |
+| Irkutsk (Ertelecom)          | 109.194.16.230  | 5201 | Irkutsk          | AS51645 ER-Telecom |
+| Krasnoyarsk (Ertelecom)      | 109.195.64.230  | 5201 | Krasnoyarsk      | AS50544 ER-Telecom |
+| Perm (Ertelecom)             | 212.33.230.200  | 5201 | Perm             | AS12768 ER-Telecom |
+| Ufa (Ertelecom)              | 109.195.144.230 | 5201 | Ufa              | AS51035 ER-Telecom |
+| Samara (Ertelecom)           | 85.113.62.252   | 5201 | Samara           | AS34533 ER-Telecom |
+| Nizhny Novgorod (Ertelecom)  | 91.144.184.231  | 5201 | Nizhny Novgorod  | AS42682 ER-Telecom |
 
 All tests use 8 parallel TCP streams (`-P 8`) for accurate throughput measurement.
 
