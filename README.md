@@ -143,9 +143,44 @@ speedra --nearest-asn as207567 # auto-start nearest server matching a specific A
 | `Space`   | Toggle server selection                     |
 | `Enter`   | Start tests for selected servers            |
 | `n`       | Select nearest server and start immediately |
+| `a`       | Add custom iperf3 server interactively      |
 | `Esc`     | Cancel running test                         |
 | `r`       | Reset results                               |
 | `q`       | Quit                                        |
+
+### Custom Servers
+
+Add your own iperf3 servers for testing (home lab, corporate network, specific regions):
+
+#### Via command line
+
+```bash
+# Add single custom server
+speedra --server 192.168.1.100:5201
+
+# With custom name
+speedra --server 192.168.1.100:5201 "My Home Server"
+
+# Multiple servers
+speedra --server 10.0.0.1:5201 "Office" --server 192.168.0.50:5201 "Lab"
+```
+
+#### Interactively in TUI
+
+Press `a` in the server list to add a custom server:
+- **Host**: IP address or hostname (required)
+- **Port**: iperf3 port, default 5201
+- **Name**: Display name (optional, auto-generated if empty)
+- **Save permanently**: `[Y/n]` — persists to config file for future sessions
+
+#### Persistent storage
+
+Custom servers are saved to:
+- **macOS**: `~/Library/Application Support/speedra/servers.json`
+- **Windows**: `C:\Users\<user>\AppData\Local\speedra\servers.json`
+- **Linux**: `~/.config/speedra/servers.json`
+
+Custom servers are marked with ✦ and appear alongside built-in servers. They are automatically pinged and ranked by distance + latency.
 
 ## Features
 
