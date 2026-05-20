@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path . -Force)",
+      "Bash(Select-Object Name, Mode)",
+      "Bash(npm run *)",
+      "Bash(npm --version)",
+      "Bash(npx biome *)",
+      "Bash(npx tsc *)",
+      "Bash(./node_modules/.bin/tsc --noEmit)",
+      "Bash(npm install *)",
+      "Bash(timeout 10 npm start)",
+      "Bash(awk '{print $NF}')",
+      "Bash(git remote *)",
+      "Bash(git commit -m 'feat: add custom iperf3 server support *)",
+      "Bash(git config *)",
+      "Bash(git push *)",
+      "Bash(git pull *)",
+      "Bash(git checkout *)",
+      "Bash(git add *)",
+      "Bash(git rebase *)"
+    ]
+  }
+}
