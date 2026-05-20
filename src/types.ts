@@ -3,7 +3,7 @@
 export type { ServerConfig } from './config/servers.js';
 export type { Location } from './services/geolocation/ip-lookup.js';
 
-export type AppView = 'selection' | 'testing' | 'results';
+export type AppView = 'selection' | 'testing' | 'results' | 'add-server';
 export type AutoStartMode = 'nearest' | 'nearest-asn';
 
 export type KeyboardAction =
@@ -14,7 +14,8 @@ export type KeyboardAction =
   | 'space'
   | 'quit'
   | 'reset'
-  | 'nearest';
+  | 'nearest'
+  | 'add';
 
 export interface EnrichedServer extends ServerConfig {
   ping: number | null;

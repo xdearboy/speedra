@@ -1,10 +1,14 @@
 import { Box, Text, useApp, useInput, useStdout } from 'ink';
 import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import type { ServerConfig } from '../config/servers.js';
 import { DEFAULT_SERVERS } from '../config/servers.js';
-import { useGeolocation } from '../hooks/useGeolocation.js';
+import { computeDistances, useGeolocation } from '../hooks/useGeolocation.js';
 import { useTestRunner } from '../hooks/useTestRunner.js';
+import { saveCustomServer } from '../services/config/custom-servers.js';
+import { tcpPing } from '../services/geolocation/ping.js';
 import type { AppView, AutoStartMode, EnrichedServer } from '../types.js';
+import { AddServerForm } from './AddServerForm.js';
 import { ErrorDisplay } from './ErrorDisplay.js';
 import { KeyboardShortcuts } from './KeyboardShortcuts.js';
 import { ProgressView } from './ProgressView.js';
@@ -26,11 +30,12 @@ interface AppState {
 interface AppProps {
   autoStartMode?: AutoStartMode | null;
   targetAsn?: string | null;
+  initialServers?: ServerConfig[];
 }
 
-function buildInitialState(): AppState {
+function buildInitialState(servers: ServerConfig[] = DEFAULT_SERVERS): AppState {
   return {
-    servers: DEFAULT_SERVERS.map(s => ({
+    servers: servers.map(s => ({
       ...s,
       ping: null,
       score: null,
@@ -45,11 +50,15 @@ function buildInitialState(): AppState {
   };
 }
 
-export function App({ autoStartMode = null, targetAsn = null }: AppProps): React.JSX.Element {
+export function App({
+  autoStartMode = null,
+  targetAsn = null,
+  initialServers = DEFAULT_SERVERS,
+}: AppProps): React.JSX.Element {
   const { exit } = useApp();
   const { stdout } = useStdout();
 
-  const [state, setState] = useState<AppState>(buildInitialState);
+  const [state, setState] = useState<AppState>(() => buildInitialState(initialServers));
 
   const {
     running,
@@ -59,8 +68,13 @@ export function App({ autoStartMode = null, targetAsn = null }: AppProps): React
     cancelTests: cancelTestRunner,
   } = useTestRunner();
 
-  const stableServers = useRef(DEFAULT_SERVERS).current;
-  const { userLocation, userASN, enrichedServers, loading: geoLoading } = useGeolocation(stableServers);
+  const stableServers = useRef(initialServers).current;
+  const {
+    userLocation,
+    userASN,
+    enrichedServers,
+    loading: geoLoading,
+  } = useGeolocation(stableServers);
 
   useEffect(() => {
     if (!geoLoading && enrichedServers.length > 0) {
@@ -145,9 +159,7 @@ export function App({ autoStartMode = null, targetAsn = null }: AppProps): React
     setState(prev => ({
       ...prev,
       servers:
-        !geoLoading && enrichedServers.length > 0
-          ? enrichedServers
-          : buildInitialState().servers,
+        !geoLoading && enrichedServers.length > 0 ? enrichedServers : buildInitialState().servers,
       selectedServers: new Set<string>(),
       userLocation: !geoLoading ? userLocation : null,
       focusedIndex: 0,
@@ -183,6 +195,77 @@ export function App({ autoStartMode = null, targetAsn = null }: AppProps): React
     startSingleServerTest(nearest, `Testing nearest server ${nearest.ip}...`);
   }, [running, state.servers, startSingleServerTest]);
 
+  const handleAddServer = useCallback(
+    async (ip: string, port: number, name: string, persist: boolean): Promise<void> => {
+      const config: ServerConfig = {
+        id: `custom-${ip.replace(/\./g, '-')}-${port}`,
+        ip,
+        port,
+        name,
+        location: {
+          city: 'Custom',
+          country: 'Custom',
+          countryCode: 'XX',
+          latitude: 0,
+          longitude: 0,
+        },
+        asn: {
+          number: 'N/A',
+          organization: 'Custom',
+        },
+        distance: null,
+        isNearest: false,
+      };
+
+      if (persist) {
+        try {
+          await saveCustomServer(config);
+        } catch (err) {
+          const message = err instanceof Error ? err.message : 'Unknown error';
+          setError(`Failed to save server: ${message}`);
+          return;
+        }
+      }
+
+      const newEnrichedServer: EnrichedServer = {
+        ...config,
+        ping: null,
+        score: null,
+        status: 'checking',
+      };
+
+      setState(s => ({
+        ...s,
+        servers: [...s.servers, newEnrichedServer],
+        view: 'selection',
+      }));
+
+      void (async () => {
+        try {
+          const ping = await tcpPing(ip, port);
+          const pingMap = new Map([[ip, ping]]);
+          const enriched = computeDistances([config], userLocation, pingMap);
+          if (enriched.length > 0) {
+            setState(s => ({
+              ...s,
+              servers: s.servers.map(srv =>
+                srv.ip === ip && srv.port === port ? enriched[0] : srv
+              ),
+            }));
+          }
+        } catch {
+          setState(s => ({
+            ...s,
+            servers: s.servers.map(srv =>
+              srv.ip === ip && srv.port === port ? { ...srv, status: 'offline' } : srv
+            ),
+          }));
+        }
+      })();
+    },
+    [userLocation, setError]
+  );
+
   const autoStartedRef = useRef(false);
   useEffect(() => {
     if (autoStartedRef.current) return;
@@ -209,17 +292,25 @@ export function App({ autoStartMode = null, targetAsn = null }: AppProps): React
 
     autoStartedRef.current = true;
     if (matchedByAsn) {
+      startSingleServerTest(target, `Auto mode: nearest in ${asnToMatch} (${target.ip})`);
+    } else {
       startSingleServerTest(
         target,
-        `Auto mode: nearest in ${asnToMatch} (${target.ip})`
+        `Auto mode: ${asnToMatch} not found, fallback nearest (${target.ip})`
       );
-    } else {
-      startSingleServerTest(target, `Auto mode: ${asnToMatch} not found, fallback nearest (${target.ip})`);
     }
-  }, [autoStartMode, geoLoading, running, startSingleServerTest, state.servers, targetAsn, userASN]);
+  }, [
+    autoStartMode,
+    geoLoading,
+    running,
+    startSingleServerTest,
+    state.servers,
+    targetAsn,
+    userASN,
+  ]);
 
   useInput((input, key) => {
-    if (input === 'q') {
+    if (input === 'q' && state.view !== 'add-server') {
       exit();
       return;
     }
@@ -250,11 +341,17 @@ export function App({ autoStartMode = null, targetAsn = null }: AppProps): React
         selectNearestAndStart();
         return;
       }
+      if (input === 'a') {
+        setState(s => ({ ...s, view: 'add-server' }));
+        return;
+      }
     }
 
     if (key.escape) {
       if (running) {
         cancelTests();
+      } else if (state.view === 'add-server') {
+        setState(s => ({ ...s, view: 'selection' }));
       } else if (state.view === 'results') {
         setState(s => ({ ...s, view: 'selection', selectedServers: new Set(), status: 'Ready' }));
       }
@@ -299,6 +396,13 @@ export function App({ autoStartMode = null, targetAsn = null }: AppProps): React
 
       {view === 'results' && (
         <ResultsTable results={testResults} width={terminalSize.columns - (isNarrow ? 0 : 2)} />
+      )}
+
+      {view === 'add-server' && (
+        <AddServerForm
+          onSubmit={handleAddServer}
+          onCancel={() => setState(s => ({ ...s, view: 'selection' }))}
+        />
       )}
 
       <KeyboardShortcuts />
