@@ -121,40 +121,64 @@ export function AddServerForm({ onSubmit, onCancel }: AddServerFormProps): React
   const nameColor = focused === 'name' ? CAT.lavender : CAT.subtext1;
   const saveColor = focused === 'save' ? CAT.lavender : CAT.subtext1;
 
+  const hostBg = focused === 'host' ? '#1e1e2e' : undefined;
+  const portBg = focused === 'port' ? '#1e1e2e' : undefined;
+  const nameBg = focused === 'name' ? '#1e1e2e' : undefined;
+  const saveBg = focused === 'save' ? '#1e1e2e' : undefined;
+
   return (
     <Box flexDirection="column" marginY={1} paddingX={2}>
       <Box marginBottom={1}>
         <Text bold color={CAT.sapphire}>
-          ▪ Add Custom Server
+          ┌─ Add Custom iperf3 Server
         </Text>
       </Box>
 
       <Box marginBottom={1} flexDirection="row" gap={1}>
-        <Text color={hostColor} bold>
-          Host:
-        </Text>
-        <Text>{host}_</Text>
+        <Box width={18}>
+          <Text color={hostColor} bold>
+            Host
+          </Text>
+        </Box>
+        <Box flexGrow={1}>
+          <Text backgroundColor={hostBg}>{host}_</Text>
+        </Box>
       </Box>
 
       <Box marginBottom={1} flexDirection="row" gap={1}>
-        <Text color={portColor} bold>
-          Port:
-        </Text>
-        <Text>{port}_</Text>
+        <Box width={18}>
+          <Text color={portColor} bold>
+            Port
+          </Text>
+        </Box>
+        <Box flexGrow={1}>
+          <Text backgroundColor={portBg}>{port}_</Text>
+        </Box>
       </Box>
 
       <Box marginBottom={1} flexDirection="row" gap={1}>
-        <Text color={nameColor} bold>
-          Name:
-        </Text>
-        <Text color={CAT.surface1}>(optional) {name}_</Text>
+        <Box width={18}>
+          <Text color={nameColor} bold>
+            Name
+          </Text>
+        </Box>
+        <Box flexGrow={1}>
+          <Text backgroundColor={nameBg} color={name ? undefined : CAT.surface1}>
+            {name || '(optional)'}
+            {name && '_'}
+          </Text>
+        </Box>
       </Box>
 
       <Box marginBottom={1} flexDirection="row" gap={1}>
-        <Text color={saveColor} bold>
-          Save permanently:
-        </Text>
-        <Text>[{savePermanently ? 'Y' : 'n'}]</Text>
+        <Box width={18}>
+          <Text color={saveColor} bold>
+            Save permanently
+          </Text>
+        </Box>
+        <Box flexGrow={1}>
+          <Text backgroundColor={saveBg}>{savePermanently ? '[Y]' : '[n]'}</Text>
+        </Box>
       </Box>
 
       {error && (
@@ -163,9 +187,9 @@ export function AddServerForm({ onSubmit, onCancel }: AddServerFormProps): React
         </Box>
       )}
 
-      <Box>
+      <Box marginBottom={0}>
         <Text color={CAT.surface1}>
-          {submitting ? 'Saving…' : 'Tab next · Enter confirm · Esc cancel'}
+          └─ {submitting ? 'Saving…' : 'Tab next · Enter confirm · Esc cancel'}
         </Text>
       </Box>
     </Box>
